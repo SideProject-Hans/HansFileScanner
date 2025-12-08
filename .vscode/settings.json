@@ -1,0 +1,237 @@
+{
+    // =====================================================================
+    // VS Code Workspace Settings - Base Repository Configuration
+    // =====================================================================
+    // 此設定檔包含專案級別的設定，會覆蓋 User Settings 中的相同設定
+    // 建議：專案特有的設定放這裡，通用設定放 User Settings
+    // =====================================================================
+
+    // *********************************************************************
+    // 一、GitHub Copilot 基本設定
+    // *********************************************************************
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": true,
+        "yaml": true,
+        "html": true,
+        "powershell": true,
+        "javascript": true,
+        "aspnetcorerazor": true
+    },
+
+    // *********************************************************************
+    // 二、GitHub Copilot Chat 設定
+    // *********************************************************************
+
+    // --- 基本設定 ---
+    "github.copilot.chat.localeOverride": "zh-TW",
+    "github.copilot.chat.useProjectTemplates": true,
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.followUps": "always",
+    "github.copilot.chat.search.semanticTextResults": true,
+    "chat.detectParticipant.enabled": false,
+    "chat.promptFiles": true,
+    "github.copilot.chat.languageContext.typescript.enabled": true,
+    "github.copilot.chat.agent.thinkingTool": true,
+
+    // --- 內嵌聊天 (Inline Chat) ---
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "inlineChat.holdToSpeech": true,
+    "inlineChat.finishOnType": false,
+
+    // --- 偵錯相關設定 ---
+    "github.copilot.chat.startDebugging.enabled": true,
+    "github.copilot.chat.reviewSelection.enabled": true,
+    "github.copilot.chat.copilotDebugCommand.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": false,
+
+    // --- 測試相關設定 ---
+    "github.copilot.chat.setupTests.enabled": true,
+    "github.copilot.chat.generateTests.codeLens": true,
+    "github.copilot.chat.testGeneration.instructions": [
+        {
+            "file": ".copilot-test-instructions.md"
+        },
+        {
+            "text": "Always try uniting related tests in a suite."
+        }
+    ],
+
+    // --- 自訂程式碼產生提示 ---
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "text": "When outputing any text, use the following term mappings: create = 建立, object = 物件, queue = 佇列, stack = 堆疊, information = 資訊, invocation = 呼叫, code = 程式碼, running = 執行, library = 函式庫, schematics = 原理圖, building = 建構, Setting up = 設定, package = 套件, video = 影片, for loop = for 迴圈, class = 類別, Concurrency = 平行處理, Transaction = 交易, Transactional = 交易式, Code Snippet = 程式碼片段, Code Generation = 程式碼產生器, Any Class = 任意類別, Scalability = 延展性, Dependency Package = 相依套件, Dependency Injection = 相依性注入, Reserved Keywords = 保留字, Metadata =  Metadata, Clone = 複製, Memory = 記憶體, Built-in = 內建, Global = 全域, Compatibility = 相容性, Function = 函式, Refresh = 重新整理, document = 文件, example = 範例, demo = 展示, quality = 品質, tutorial = 指南, recipes = 秘訣, byte = 位元組, bit = 位元"
+        },
+        {
+            "text": "Always response in #zh-tw."
+        },
+        {
+            "file": ".copilot-instructions.md"
+        }
+    ],
+
+    // --- 自訂程式碼審查提示 ---
+    "github.copilot.chat.reviewSelection.instructions": [
+        {
+            "text": "Always response in #zh-tw."
+        },
+        {
+            "file": ".copilot-review-instructions.md"
+        }
+    ],
+
+    // --- 自訂 Git Commit 訊息提示 ---
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "# Use Conventional Commits 1.0.0 for commit messages."
+        },
+        {
+            "text": "請一律使用正體中文來撰寫記錄"
+        },
+        {
+            "file": ".copilot-commit-message-instructions.md"
+        }
+    ],
+
+    // --- 自訂 Pull Request 描述提示 ---
+    "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+        {
+            "text": "請一律使用正體中文來撰寫記錄"
+        },
+        {
+            "file": ".copilot-pull-request-description-instructions.md"
+        }
+    ],
+
+    // --- Copilot Chat Edit ---
+    "github.copilot.chat.edits.suggestRelatedFilesForTests": true,
+    "github.copilot.chat.edits.suggestRelatedFilesFromGitHistory": true,
+
+    // *********************************************************************
+    // 三、GitHub Copilot Agent Mode 設定
+    // *********************************************************************
+    "chat.agent.enabled": true,
+    "chat.agent.maxRequests": 100,
+    "github.copilot.chat.agent.runTasks": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.newWorkspaceCreation.enabled": true,
+
+    // *********************************************************************
+    // 四、Spec Kit 規格驅動開發 (SDD) 專案設定
+    // *********************************************************************
+
+    // --- Spec Kit Prompt 檔案建議 (SDD 流程核心 slash commands) ---
+    "chat.promptFilesRecommendations": {
+        "speckit.constitution": true,  // 建立/更新專案憲法
+        "speckit.specify": true,       // 制定規格
+        "speckit.clarify": true,       // 釐清問題
+        "speckit.plan": true,          // 制定開發計畫
+        "speckit.tasks": true,         // 規劃任務清單
+        "speckit.analyze": true,       // 產生規格分析報告
+        "speckit.implement": true      // 開始實作
+    },
+
+    // --- Terminal 自動核准設定 (允許 Spec Kit 腳本自動執行) ---
+    "chat.tools.terminal.autoApprove": {
+        ".specify/scripts/bash/": true,
+        ".specify/scripts/powershell/": true,
+        "specify": true,               // Specify CLI 工具
+        "copilot": true                // Copilot CLI 工具
+    },
+
+    // *********************************************************************
+    // 五、MCP (Model Context Protocol) 設定
+    // *********************************************************************
+    "chat.mcp.discovery.enabled": {
+        "claude-desktop": false,
+        "windsurf": false,
+        "cursor-global": false,
+        "cursor-workspace": false
+    },
+    "chat.mcp.access": "all",
+    "mcp": {
+        "servers": {
+        }
+    },
+
+    // *********************************************************************
+    // 六、編輯器與工作區設定
+    // *********************************************************************
+
+    // --- 命令中心 ---
+    "window.commandCenter": true,
+    "chat.commandCenter.enabled": true,
+
+    // --- 搜尋設定 ---
+    "search.searchView.semanticSearchBehavior": "runOnEmpty",
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/.git": true
+    },
+
+    // --- 編輯器設定 ---
+    "editor.inlineSuggest.edits.showCollapsed": true,
+
+    // --- 檔案格式設定 ---
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
+
+    // --- 檔案關聯設定 ---
+    "files.associations": {
+        "*.md": "markdown",
+        "constitution.md": "markdown",
+        "spec.md": "markdown",
+        "plan.md": "markdown",
+        "tasks.md": "markdown"
+    },
+
+    // *********************************************************************
+    // 七、Git 設定
+    // *********************************************************************
+    "git.autofetch": true,
+
+    // *********************************************************************
+    // 八、拼寫檢查設定
+    // *********************************************************************
+    "cSpell.words": [
+        "chdir",
+        "duotify",
+        "speckit",
+        "RATIFICATION",
+        "AMENDED"
+    ],
+
+    // *********************************************************************
+    // 九、使用者介面與外觀設定
+    // *********************************************************************
+    "workbench.iconTheme": "material-icon-theme",
+
+    // *********************************************************************
+    // 十、終端機設定
+    // *********************************************************************
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.fontFamily": "CaskaydiaCove Nerd Font Mono",
+
+    // *********************************************************************
+    // 十一、格式化與清理設定
+    // *********************************************************************
+    "trailing-spaces.trimOnSave": true,
+
+    // *********************************************************************
+    // 十二、MCP 伺服器採樣設定
+    // *********************************************************************
+    "chat.mcp.serverSampling": {
+        "Global in Code: markitdown": {
+            "allowedModels": [
+                "github.copilot-chat/claude-sonnet-4"
+            ]
+        }
+    }
+}
