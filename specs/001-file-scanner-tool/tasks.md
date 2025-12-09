@@ -1,211 +1,229 @@
 # Tasks: 跨平台檔案掃描工具
 
 **Input**: Design documents from `/specs/001-file-scanner-tool/`
-**Prerequisites**: plan.md (required), spec.md (required), research.md, data-model.md, contracts/, quickstart.md
+**Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/ ✅, quickstart.md ✅
 
-**Tests**: 根據 Constitution Principle II (Test-Driven Development)，測試為必要項目，必須在實作前撰寫。採用 TDD 紅-綠-重構流程。
+**Tests**: 本專案遵循 Constitution Principle II (TDD)，測試為必要項目，必須在實作前撰寫。
 
-**Organization**: 任務依 User Story 分組，以便獨立實作與測試每個 Story。
+**Organization**: 任務按 User Story 分組，以支援各 Story 的獨立實作與測試。
 
 ## Format: `[ID] [P?] [Story?] Description`
 
 - **[P]**: 可平行執行（不同檔案、無相依性）
-- **[Story]**: 任務所屬的 User Story (US1, US2, US3, US4)
-- 描述中包含完整檔案路徑
+- **[Story]**: 此任務所屬的 User Story（例如：US1, US2, US3, US4）
+- 描述中包含確切的檔案路徑
 
 ## Path Conventions
 
+依據 plan.md 的專案結構：
 - **Rust 後端**: `src-tauri/src/`
 - **React 前端**: `src/`
 - **前端測試**: `tests/`
-- **Rust 測試**: `src-tauri/src/` 內的 `#[cfg(test)]` 模組
 
 ---
 
-## Phase 1: Setup (專案初始化)
+## Phase 1: Setup (共用基礎建設)
 
-**Purpose**: 建立 Tauri 2.x + React 專案基礎架構
+**Purpose**: 專案初始化與基本結構建立
 
-- [ ] T001 使用 `pnpm create tauri-app` 建立 Tauri 2.x + React + TypeScript 專案
-- [ ] T002 安裝前端相依套件：zustand, lucide-react, tailwindcss, @radix-ui/react-* 等
-- [ ] T003 安裝 shadcn/ui 並初始化：`pnpm dlx shadcn@latest init`
-- [ ] T004 [P] 安裝 Tauri plugins: `pnpm tauri add dialog` 和 `pnpm tauri add fs`
-- [ ] T005 [P] 新增 Rust 相依套件至 `src-tauri/Cargo.toml`: walkdir, chrono, trash, serde, serde_json
-- [ ] T006 [P] 設定 Tailwind CSS：建立 `tailwind.config.js` 和 `postcss.config.js`
-- [ ] T007 [P] 設定 TypeScript 路徑別名：更新 `tsconfig.json` 和 `vite.config.ts` 中的 `@/*` 路徑
-- [ ] T008 [P] 設定 ESLint + Prettier 前端程式碼品質工具 (Constitution I: Code Quality Standards)
-- [ ] T009 [P] 設定 rustfmt + clippy Rust 程式碼品質工具 (Constitution I: Code Quality Standards)
-- [ ] T010 [P] 設定 Vitest + React Testing Library 前端測試框架 (Constitution II: TDD mandatory)
-- [ ] T011 [P] 設定 cargo-tarpaulin Rust 測試覆蓋率工具 (Constitution II: TDD mandatory)
-- [ ] T012 設定 Tauri 權限：更新 `src-tauri/capabilities/default.json` 加入 dialog 和 fs 權限
+- [ ] T001 使用 `pnpm create tauri-app@latest` 建立 Tauri 2.x + React + TypeScript 專案
+- [ ] T002 安裝前端相依套件 (zustand, lucide-react, tailwindcss, @tanstack/react-virtual) 於 `package.json`
+- [ ] T003 [P] 安裝 shadcn/ui 並初始化設定 (`pnpm dlx shadcn@latest init`)
+- [ ] T004 [P] 設定 Tailwind CSS (`tailwind.config.js`, `postcss.config.js`, `src/index.css`)
+- [ ] T005 [P] 設定 TypeScript 嚴格模式於 `tsconfig.json`
+- [ ] T006 安裝 Tauri plugins (dialog, fs) 於 `src-tauri/Cargo.toml`
+- [ ] T007 [P] 新增 Rust 相依套件 (walkdir, chrono, trash, serde, serde_json) 於 `src-tauri/Cargo.toml`
+- [ ] T008 [P] 設定 ESLint + Prettier 前端程式碼風格於 `.eslintrc.cjs` 和 `.prettierrc`
+- [ ] T009 [P] 設定 rustfmt + clippy Rust 程式碼風格於 `src-tauri/rustfmt.toml` 和 `src-tauri/.clippy.toml`
+- [ ] T010 [P] 設定前端測試框架 Vitest 於 `vitest.config.ts`
+- [ ] T011 [P] 建立 GitHub Actions CI 工作流程於 `.github/workflows/ci.yml`
+- [ ] T012 [P] 設定 Tauri 權限於 `src-tauri/capabilities/default.json`
 
 ---
 
-## Phase 2: Foundational (基礎架構)
+## Phase 2: Foundational (阻塞性前置作業)
 
-**Purpose**: 建立所有 User Story 都需要的核心基礎設施
+**Purpose**: 核心基礎建設，所有 User Story 實作前必須完成
 
-**⚠️ CRITICAL**: 此階段必須完成後才能開始任何 User Story 工作
+**⚠️ 重要**: 此階段完成前，不能開始任何 User Story 的工作
 
-### Rust 後端基礎架構
+### 共用型別定義
 
-- [ ] T013 建立 Rust 模組結構：`src-tauri/src/lib.rs` 匯出 commands, models, scanner 模組
-- [ ] T014 [P] 建立 FileCategory 列舉型別於 `src-tauri/src/models/file_category.rs`
-- [ ] T015 [P] 建立 FileEntry 資料結構於 `src-tauri/src/models/file_entry.rs`
-- [ ] T016 [P] 建立 ScanStats 資料結構於 `src-tauri/src/models/scan_stats.rs`
-- [ ] T017 [P] 建立 FailedEntry 和 FailureReason 資料結構於 `src-tauri/src/models/failed_entry.rs`
-- [ ] T018 [P] 建立 ScanResult 資料結構於 `src-tauri/src/models/scan_result.rs`
-- [ ] T019 [P] 建立 ScanProgress 和 ScanStatus 資料結構於 `src-tauri/src/models/scan_progress.rs`
-- [ ] T020 [P] 建立 FileOperationResult 和 OperationType 資料結構於 `src-tauri/src/models/file_operation.rs`
-- [ ] T021 建立 models 模組彙整檔 `src-tauri/src/models/mod.rs`
-- [ ] T022 實作副檔名分類函式 `classify_extension()` 於 `src-tauri/src/scanner/file_category.rs`
-- [ ] T023 更新 `src-tauri/src/main.rs` 註冊所有 Tauri commands
+- [ ] T013 建立前端共用型別定義於 `src/types/file.ts` (FileEntry, FileCategory, ScanResult, ScanStats 等)
+- [ ] T014 [P] 建立前端掃描相關型別於 `src/types/scan.ts` (ScanProgress, ScanStatus, ViewMode 等)
+- [ ] T015 [P] 建立 Rust 資料模型於 `src-tauri/src/models/mod.rs` (模組匯出)
+- [ ] T016 [P] 建立 Rust FileEntry 結構於 `src-tauri/src/models/file_entry.rs`
+- [ ] T017 [P] 建立 Rust ScanResult 結構於 `src-tauri/src/models/scan_result.rs`
 
-### React 前端基礎架構
+### 核心掃描引擎
 
-- [ ] T024 [P] 建立 TypeScript 型別定義於 `src/types/file.ts`（FileEntry, FileCategory, ScanStats 等）
-- [ ] T025 [P] 建立 TypeScript 型別定義於 `src/types/scan.ts`（ScanResult, ScanProgress 等）
-- [ ] T026 [P] 建立 Tauri API 封裝於 `src/lib/tauri.ts`（invoke wrapper, event listeners）
-- [ ] T027 [P] 建立通用工具函式於 `src/lib/utils.ts`（cn(), formatFileSize(), formatDate()）
-- [ ] T028 [P] 建立檔案相關工具函式於 `src/lib/file-utils.ts`（getFileIcon(), getCategoryColor()）
-- [ ] T029 建立主版面配置元件 `src/components/layout/MainLayout.tsx`
-- [ ] T030 安裝並設定 shadcn/ui 基礎元件：Button, Input, Checkbox, Dialog, Progress, Toast, ScrollArea 於 `src/components/ui/`
-- [ ] T031 設定 Toast 通知系統於 `src/App.tsx`
-- [ ] T032 [P] 設定 GitHub Actions CI 管線：`.github/workflows/ci.yml` 執行測試和品質檢查 (Constitution II & IV)
+- [ ] T018 建立 Rust 掃描模組於 `src-tauri/src/scanner/mod.rs` (模組匯出)
+- [ ] T019 實作檔案類型分類邏輯於 `src-tauri/src/scanner/file_info.rs` (FileCategory 映射)
+- [ ] T020 實作目錄遍歷核心於 `src-tauri/src/scanner/walker.rs` (使用 walkdir crate)
 
-**Checkpoint**: 基礎架構完成 - 可開始實作 User Stories
+### Tauri 命令框架
+
+- [ ] T021 建立 Tauri 命令模組於 `src-tauri/src/commands/mod.rs` (模組匯出)
+- [ ] T022 設定 Tauri 應用程式進入點於 `src-tauri/src/main.rs`
+- [ ] T023 設定模組匯出於 `src-tauri/src/lib.rs`
+
+### 前端基礎架構
+
+- [ ] T024 建立 Tauri API 封裝於 `src/lib/tauri.ts` (invoke 包裝函式)
+- [ ] T025 [P] 建立通用工具函式於 `src/lib/utils.ts` (cn 函式、格式化等)
+- [ ] T026 [P] 建立檔案相關工具於 `src/lib/file-utils.ts` (檔案大小格式化、副檔名處理)
+- [ ] T027 建立主版面配置元件於 `src/components/layout/MainLayout.tsx`
+- [ ] T028 更新應用程式根元件於 `src/App.tsx` (引入 MainLayout)
+
+### shadcn/ui 基礎元件
+
+- [ ] T029 [P] 新增 shadcn Button 元件於 `src/components/ui/button.tsx`
+- [ ] T030 [P] 新增 shadcn Dialog 元件於 `src/components/ui/dialog.tsx`
+- [ ] T031 [P] 新增 shadcn Checkbox 元件於 `src/components/ui/checkbox.tsx`
+- [ ] T032 [P] 新增 shadcn Select 元件於 `src/components/ui/select.tsx`
+- [ ] T033 [P] 新增 shadcn Input 元件於 `src/components/ui/input.tsx`
+- [ ] T034 [P] 新增 shadcn Progress 元件於 `src/components/ui/progress.tsx`
+- [ ] T035 [P] 新增 shadcn Toast/Sonner 元件於 `src/components/ui/sonner.tsx`
+
+**Checkpoint**: 基礎建設完成 - 可開始 User Story 實作
 
 ---
 
 ## Phase 3: User Story 1 - 掃描資料夾並顯示檔案資訊 (Priority: P1) 🎯 MVP
 
-**Goal**: 使用者可選擇資料夾、掃描所有檔案（含子資料夾）、查看檔案路徑/大小/修改時間
+**Goal**: 使用者可選擇資料夾、執行掃描、查看所有檔案資訊（包含子資料夾）
 
-**Independent Test**: 選擇任一資料夾 → 點擊掃描 → 顯示檔案清單（含進度條）
+**Independent Test**: 選擇任一資料夾 → 點擊掃描 → 顯示檔案清單（路徑、大小、修改時間、資料夾總大小）
 
-### Tests for User Story 1 (MANDATORY - Constitution II: TDD) ⚠️
+### Tests for User Story 1 (Constitution II: TDD) ⚠️
 
-> **CRITICAL: 先撰寫測試、確保測試失敗、再實作 (Red-Green-Refactor)**
-
-- [ ] T033 [P] [US1] Rust 單元測試：`classify_extension()` 於 `src-tauri/src/scanner/file_category.rs` 的 `#[cfg(test)]` 模組
-- [ ] T034 [P] [US1] Rust 單元測試：`FileEntry::from_path()` 於 `src-tauri/src/models/file_entry.rs` 的 `#[cfg(test)]` 模組
-- [ ] T035 [P] [US1] Rust 單元測試：目錄遍歷 `scan_directory()` 於 `src-tauri/src/scanner/walker.rs` 的 `#[cfg(test)]` 模組
-- [ ] T036 [P] [US1] Rust 整合測試：`scan_folder` command 於 `src-tauri/src/commands/scan.rs` 的 `#[cfg(test)]` 模組
-- [ ] T037 [P] [US1] 前端元件測試：FolderSelector 於 `tests/components/FolderSelector.test.tsx`
-- [ ] T038 [P] [US1] 前端元件測試：ProgressBar 於 `tests/components/ProgressBar.test.tsx`
-- [ ] T039 [P] [US1] 前端元件測試：FileTable 於 `tests/components/FileTable.test.tsx`
-- [ ] T040 [P] [US1] 前端 Hook 測試：useScanner 於 `tests/hooks/useScanner.test.ts`
-- [ ] T041 [P] [US1] 前端 Store 測試：scanStore 於 `tests/stores/scanStore.test.ts`
+- [ ] T036 [P] [US1] 建立 Rust 掃描模組單元測試於 `src-tauri/src/scanner/walker.rs` (內嵌 #[cfg(test)])
+- [ ] T037 [P] [US1] 建立 Rust 檔案資訊單元測試於 `src-tauri/src/scanner/file_info.rs` (內嵌 #[cfg(test)])
+- [ ] T038 [P] [US1] 建立前端 useScanner Hook 測試於 `tests/hooks/useScanner.test.ts`
+- [ ] T039 [P] [US1] 建立前端 scanStore 測試於 `tests/stores/scanStore.test.ts`
+- [ ] T040 [P] [US1] 建立 FolderSelector 元件測試於 `tests/components/scanner/FolderSelector.test.tsx`
+- [ ] T041 [P] [US1] 建立 ProgressBar 元件測試於 `tests/components/scanner/ProgressBar.test.tsx`
 
 ### Implementation for User Story 1
 
-#### Rust 後端實作
+#### Rust 後端
 
-- [ ] T042 [US1] 實作目錄遍歷核心邏輯於 `src-tauri/src/scanner/walker.rs`：使用 walkdir 遍歷、收集 FileEntry
-- [ ] T043 [US1] 實作 FileEntry::from_path() 方法於 `src-tauri/src/models/file_entry.rs`：從檔案系統讀取 metadata
-- [ ] T044 [US1] 實作 `scan_folder` Tauri command 於 `src-tauri/src/commands/scan.rs`：整合 walker, 計算 stats, 處理錯誤
-- [ ] T045 [US1] 實作掃描進度事件發送於 `src-tauri/src/commands/scan.rs`：使用 `window.emit("scan_progress", ...)`
-- [ ] T046 [US1] 建立 scanner 模組彙整檔 `src-tauri/src/scanner/mod.rs`
-- [ ] T047 [US1] 建立 commands 模組彙整檔 `src-tauri/src/commands/mod.rs`
+- [ ] T042 [US1] 實作 scan_folder Tauri 命令於 `src-tauri/src/commands/scan.rs`
+- [ ] T043 [US1] 實作掃描進度事件發送於 `src-tauri/src/commands/scan.rs` (emit scan_progress)
 
-#### React 前端實作
+#### 前端狀態管理
 
-- [ ] T048 [P] [US1] 建立掃描狀態 Store 於 `src/stores/scanStore.ts`：Zustand store 管理掃描結果、進度、狀態
-- [ ] T049 [US1] 建立 useScanner Hook 於 `src/hooks/useScanner.ts`：封裝掃描邏輯、進度監聽、錯誤處理
-- [ ] T050 [P] [US1] 建立 FolderSelector 元件於 `src/components/scanner/FolderSelector.tsx`：資料夾選擇按鈕 + 顯示路徑
-- [ ] T051 [P] [US1] 建立 ScanButton 元件於 `src/components/scanner/ScanButton.tsx`：掃描/停止按鈕
-- [ ] T052 [P] [US1] 建立 ProgressBar 元件於 `src/components/scanner/ProgressBar.tsx`：進度條 + 目前掃描路徑
-- [ ] T053 [P] [US1] 建立 FileTable 元件於 `src/components/file-list/FileTable.tsx`：表格顯示檔案清單（路徑、大小、修改時間）
-- [ ] T054 [P] [US1] 建立 FileItem 元件於 `src/components/file-list/FileItem.tsx`：單一檔案列項目
-- [ ] T055 [US1] 整合所有元件於 `src/App.tsx`：MainLayout + FolderSelector + ScanButton + ProgressBar + FileTable
+- [ ] T044 [US1] 建立 scanStore 狀態管理於 `src/stores/scanStore.ts` (Zustand)
+
+#### 前端 Hooks
+
+- [ ] T045 [US1] 建立 useScanner Hook 於 `src/hooks/useScanner.ts` (封裝掃描邏輯)
+
+#### 前端元件
+
+- [ ] T046 [P] [US1] 建立 FolderSelector 元件於 `src/components/scanner/FolderSelector.tsx` (資料夾選擇)
+- [ ] T047 [P] [US1] 建立 ScanButton 元件於 `src/components/scanner/ScanButton.tsx` (掃描按鈕)
+- [ ] T048 [P] [US1] 建立 ProgressBar 元件於 `src/components/scanner/ProgressBar.tsx` (進度條)
+- [ ] T049 [US1] 建立 FileTable 元件於 `src/components/file-list/FileTable.tsx` (表格式顯示)
+- [ ] T050 [US1] 建立 FileItem 元件於 `src/components/file-list/FileItem.tsx` (單一檔案項目)
+- [ ] T051 [US1] 整合掃描功能至 MainLayout 於 `src/components/layout/MainLayout.tsx`
 
 ### Validation for User Story 1
 
-- [ ] T056 [US1] 驗證 Rust 測試覆蓋率 ≥ 80%：執行 `cargo tarpaulin` (Constitution II)
-- [ ] T057 [US1] 驗證前端測試覆蓋率 ≥ 80%：執行 `pnpm test:coverage` (Constitution II)
-- [ ] T058 [US1] 執行效能測試：掃描 1000 個檔案應 < 10 秒 (Constitution IV)
-- [ ] T059 [US1] 執行 Rust clippy 檢查：`cargo clippy` (Constitution I)
-- [ ] T060 [US1] 執行 ESLint 檢查：`pnpm lint` (Constitution I)
+- [ ] T052 [US1] 驗證 Rust 測試通過 (`cargo test` 於 src-tauri/)
+- [ ] T053 [US1] 驗證前端測試覆蓋率 ≥ 80% (`pnpm test:coverage`)
+- [ ] T054 [US1] 驗證效能：掃描 1000 個檔案 < 10 秒
 
-**Checkpoint**: User Story 1 完成 - 使用者可選擇資料夾並掃描顯示檔案清單 (MVP 可交付)
+**Checkpoint**: User Story 1 完成 - 使用者可選擇資料夾並掃描顯示檔案資訊
 
 ---
 
 ## Phase 4: User Story 2 - 以不同模式檢視檔案並搜尋 (Priority: P2)
 
-**Goal**: 使用者可切換顯示模式（樹結構/文檔/圖檔/影片/音訊）、篩選檔案類型、搜尋檔案名稱
+**Goal**: 使用者可切換顯示模式（樹結構/文檔/圖檔/影片/音訊）、使用下拉選單篩選副檔名、並透過搜尋框即時搜尋
 
-**Independent Test**: 掃描完成後 → 切換顯示模式 → 選擇檔案類型篩選 → 輸入搜尋關鍵字 → 驗證結果正確
+**Independent Test**: 切換到「圖檔清單」模式 → 從下拉選單選擇「jpg」→ 輸入搜尋關鍵字 → 驗證顯示結果
 
-### Tests for User Story 2 (MANDATORY - Constitution II: TDD) ⚠️
+### Tests for User Story 2 (Constitution II: TDD) ⚠️
 
-- [ ] T061 [P] [US2] 前端元件測試：ViewModeSelector 於 `tests/components/ViewModeSelector.test.tsx`
-- [ ] T062 [P] [US2] 前端元件測試：TypeFilter 於 `tests/components/TypeFilter.test.tsx`
-- [ ] T063 [P] [US2] 前端元件測試：SearchBox 於 `tests/components/SearchBox.test.tsx`
-- [ ] T064 [P] [US2] 前端元件測試：FileTree 於 `tests/components/FileTree.test.tsx`
-- [ ] T065 [P] [US2] 前端 Store 測試：filterStore 於 `tests/stores/filterStore.test.ts`
-- [ ] T066 [P] [US2] 前端 Hook 測試：useFileFilter 於 `tests/hooks/useFileFilter.test.ts`
+- [ ] T055 [P] [US2] 建立 filterStore 測試於 `tests/stores/filterStore.test.ts`
+- [ ] T056 [P] [US2] 建立 ViewModeSelector 元件測試於 `tests/components/filters/ViewModeSelector.test.tsx`
+- [ ] T057 [P] [US2] 建立 TypeFilter 元件測試於 `tests/components/filters/TypeFilter.test.tsx`
+- [ ] T058 [P] [US2] 建立 SearchBox 元件測試於 `tests/components/filters/SearchBox.test.tsx`
+- [ ] T059 [P] [US2] 建立 FileTree 元件測試於 `tests/components/file-list/FileTree.test.tsx`
 
 ### Implementation for User Story 2
 
-- [ ] T067 [P] [US2] 建立 ViewMode 型別於 `src/types/file.ts`：Tree, Documents, Images, Videos, Audio
-- [ ] T068 [P] [US2] 建立篩選狀態 Store 於 `src/stores/filterStore.ts`：viewMode, searchQuery, selectedExtensions
-- [ ] T069 [US2] 建立 useFileFilter Hook 於 `src/hooks/useFileFilter.ts`：結合 viewMode + extensions + search 的篩選邏輯
-- [ ] T070 [P] [US2] 建立 ViewModeSelector 元件於 `src/components/filters/ViewModeSelector.tsx`：5 種模式切換按鈕
-- [ ] T071 [P] [US2] 建立 TypeFilter 元件於 `src/components/filters/TypeFilter.tsx`：副檔名下拉選單（依模式動態顯示）
-- [ ] T072 [P] [US2] 建立 SearchBox 元件於 `src/components/filters/SearchBox.tsx`：搜尋框 + 清除按鈕 + 300ms debounce
-- [ ] T073 [US2] 建立 FileTree 元件於 `src/components/file-list/FileTree.tsx`：樹狀結構顯示（可展開/收合資料夾）
-- [ ] T074 [US2] 更新 FileTable 元件：整合 useFileFilter 篩選結果
-- [ ] T075 [US2] 整合篩選元件於 `src/App.tsx`：ViewModeSelector + TypeFilter + SearchBox
+#### 前端狀態管理
+
+- [ ] T060 [US2] 建立 filterStore 狀態管理於 `src/stores/filterStore.ts` (ViewMode, 搜尋, 篩選)
+
+#### 前端元件 - 篩選功能
+
+- [ ] T061 [P] [US2] 建立 ViewModeSelector 元件於 `src/components/filters/ViewModeSelector.tsx` (模式切換)
+- [ ] T062 [P] [US2] 建立 TypeFilter 元件於 `src/components/filters/TypeFilter.tsx` (副檔名下拉篩選)
+- [ ] T063 [P] [US2] 建立 SearchBox 元件於 `src/components/filters/SearchBox.tsx` (即時搜尋)
+
+#### 前端元件 - 顯示模式
+
+- [ ] T064 [US2] 建立 FileTree 元件於 `src/components/file-list/FileTree.tsx` (樹結構顯示)
+- [ ] T065 [US2] 更新 FileTable 支援篩選於 `src/components/file-list/FileTable.tsx`
+- [ ] T066 [US2] 整合篩選功能至 MainLayout 於 `src/components/layout/MainLayout.tsx`
 
 ### Validation for User Story 2
 
-- [ ] T076 [US2] 驗證前端測試覆蓋率 ≥ 80%：執行 `pnpm test:coverage` (Constitution II)
-- [ ] T077 [US2] 驗證搜尋即時性：輸入後 300ms 內顯示結果 (Constitution IV)
+- [ ] T067 [US2] 驗證前端測試覆蓋率 ≥ 80%
+- [ ] T068 [US2] 驗證 UI 操作回應時間 < 100ms
 
-**Checkpoint**: User Story 2 完成 - 使用者可切換模式、篩選類型、搜尋檔案
+**Checkpoint**: User Story 2 完成 - 使用者可切換模式、篩選類型並搜尋檔案
 
 ---
 
 ## Phase 5: User Story 3 - 選擇並刪除檔案 (Priority: P3)
 
-**Goal**: 使用者可勾選檔案、全選/取消全選、刪除選中檔案（移至資源回收筒）
+**Goal**: 使用者可勾選檔案（單選/多選/全選）並刪除選中的檔案
 
-**Independent Test**: 勾選多個檔案 → 點擊刪除 → 確認對話框 → 驗證檔案已刪除並顯示結果
+**Independent Test**: 勾選多個檔案 → 點擊刪除 → 確認對話框 → 驗證檔案被刪除並顯示結果
 
-### Tests for User Story 3 (MANDATORY - Constitution II: TDD) ⚠️
+### Tests for User Story 3 (Constitution II: TDD) ⚠️
 
-- [ ] T078 [P] [US3] Rust 單元測試：`delete_files` command 於 `src-tauri/src/commands/file_ops.rs` 的 `#[cfg(test)]` 模組
-- [ ] T079 [P] [US3] 前端元件測試：FileCheckbox 於 `tests/components/FileCheckbox.test.tsx`
-- [ ] T080 [P] [US3] 前端元件測試：DeleteButton 於 `tests/components/DeleteButton.test.tsx`
-- [ ] T081 [P] [US3] 前端元件測試：ConfirmDialog 於 `tests/components/ConfirmDialog.test.tsx`
-- [ ] T082 [P] [US3] 前端 Store 測試：selectionStore 於 `tests/stores/selectionStore.test.ts`
-- [ ] T083 [P] [US3] 前端 Hook 測試：useFileSelection 於 `tests/hooks/useFileSelection.test.ts`
-- [ ] T084 [P] [US3] 前端 Hook 測試：useFileOperations 於 `tests/hooks/useFileOperations.test.ts`
+- [ ] T069 [P] [US3] 建立 Rust delete_files 命令測試於 `src-tauri/src/commands/file_ops.rs` (內嵌 #[cfg(test)])
+- [ ] T070 [P] [US3] 建立 selectionStore 測試於 `tests/stores/selectionStore.test.ts`
+- [ ] T071 [P] [US3] 建立 useFileSelection Hook 測試於 `tests/hooks/useFileSelection.test.ts`
+- [ ] T072 [P] [US3] 建立 useFileOperations Hook 測試於 `tests/hooks/useFileOperations.test.ts`
+- [ ] T073 [P] [US3] 建立 FileCheckbox 元件測試於 `tests/components/file-list/FileCheckbox.test.tsx`
+- [ ] T074 [P] [US3] 建立 DeleteButton 元件測試於 `tests/components/operations/DeleteButton.test.tsx`
+- [ ] T075 [P] [US3] 建立 ConfirmDialog 元件測試於 `tests/components/operations/ConfirmDialog.test.tsx`
 
 ### Implementation for User Story 3
 
-#### Rust 後端實作
+#### Rust 後端
 
-- [ ] T085 [US3] 實作 `delete_files` Tauri command 於 `src-tauri/src/commands/file_ops.rs`：使用 trash crate 移至資源回收筒
+- [ ] T076 [US3] 實作 delete_files Tauri 命令於 `src-tauri/src/commands/file_ops.rs` (使用 trash crate)
 
-#### React 前端實作
+#### 前端狀態管理
 
-- [ ] T086 [P] [US3] 建立選擇狀態 Store 於 `src/stores/selectionStore.ts`：selectedPaths Set, selectAll, clearSelection
-- [ ] T087 [US3] 建立 useFileSelection Hook 於 `src/hooks/useFileSelection.ts`：toggle, selectAll, shift-click 連選邏輯
-- [ ] T088 [US3] 建立 useFileOperations Hook 於 `src/hooks/useFileOperations.ts`：deleteSelected, copySelected
-- [ ] T089 [P] [US3] 建立 FileCheckbox 元件於 `src/components/file-list/FileCheckbox.tsx`：單一檔案勾選框
-- [ ] T090 [P] [US3] 建立 SelectAllCheckbox 元件於 `src/components/file-list/SelectAllCheckbox.tsx`：全選/取消全選
-- [ ] T091 [P] [US3] 建立 DeleteButton 元件於 `src/components/operations/DeleteButton.tsx`：刪除按鈕（disabled when no selection）
-- [ ] T092 [US3] 建立 ConfirmDialog 元件於 `src/components/operations/ConfirmDialog.tsx`：確認刪除對話框
-- [ ] T093 [US3] 更新 FileItem/FileTable 整合 FileCheckbox
-- [ ] T094 [US3] 整合刪除功能於 `src/App.tsx`：SelectAllCheckbox + DeleteButton + ConfirmDialog + Toast 通知
+- [ ] T077 [US3] 建立 selectionStore 狀態管理於 `src/stores/selectionStore.ts`
+
+#### 前端 Hooks
+
+- [ ] T078 [P] [US3] 建立 useFileSelection Hook 於 `src/hooks/useFileSelection.ts`
+- [ ] T079 [P] [US3] 建立 useFileOperations Hook 於 `src/hooks/useFileOperations.ts`
+
+#### 前端元件
+
+- [ ] T080 [P] [US3] 建立 FileCheckbox 元件於 `src/components/file-list/FileCheckbox.tsx`
+- [ ] T081 [P] [US3] 建立 SelectAllButton 元件於 `src/components/operations/SelectAllButton.tsx`
+- [ ] T082 [P] [US3] 建立 DeleteButton 元件於 `src/components/operations/DeleteButton.tsx`
+- [ ] T083 [US3] 建立 ConfirmDialog 元件於 `src/components/operations/ConfirmDialog.tsx`
+- [ ] T084 [US3] 整合選擇與刪除功能至 FileTable/FileTree 於 `src/components/file-list/`
+- [ ] T085 [US3] 整合操作按鈕至 MainLayout 於 `src/components/layout/MainLayout.tsx`
 
 ### Validation for User Story 3
 
-- [ ] T095 [US3] 驗證 Rust 測試覆蓋率 ≥ 80%：執行 `cargo tarpaulin` (Constitution II)
-- [ ] T096 [US3] 驗證前端測試覆蓋率 ≥ 80%：執行 `pnpm test:coverage` (Constitution II)
-- [ ] T097 [US3] 驗證刪除操作正確處理鎖定檔案：顯示錯誤訊息並繼續處理其他檔案
+- [ ] T086 [US3] 驗證 Rust 測試通過
+- [ ] T087 [US3] 驗證前端測試覆蓋率 ≥ 80%
+- [ ] T088 [US3] 驗證刪除操作有確認對話框且錯誤有明確提示
 
 **Checkpoint**: User Story 3 完成 - 使用者可選擇並刪除檔案
 
@@ -213,34 +231,32 @@
 
 ## Phase 6: User Story 4 - 選擇並複製檔案 (Priority: P4)
 
-**Goal**: 使用者可選擇檔案並複製到指定資料夾，處理同名檔案衝突
+**Goal**: 使用者可選擇檔案並複製到指定目標資料夾
 
-**Independent Test**: 勾選檔案 → 點擊複製 → 選擇目標資料夾 → 驗證檔案已複製
+**Independent Test**: 勾選檔案 → 點擊複製 → 選擇目標資料夾 → 驗證檔案被複製並顯示結果
 
-### Tests for User Story 4 (MANDATORY - Constitution II: TDD) ⚠️
+### Tests for User Story 4 (Constitution II: TDD) ⚠️
 
-- [ ] T098 [P] [US4] Rust 單元測試：`copy_files` command 於 `src-tauri/src/commands/file_ops.rs` 的 `#[cfg(test)]` 模組
-- [ ] T099 [P] [US4] 前端元件測試：CopyButton 於 `tests/components/CopyButton.test.tsx`
-- [ ] T100 [P] [US4] 前端元件測試：ConflictDialog 於 `tests/components/ConflictDialog.test.tsx`
+- [ ] T089 [P] [US4] 建立 Rust copy_files 命令測試於 `src-tauri/src/commands/file_ops.rs` (內嵌 #[cfg(test)])
+- [ ] T090 [P] [US4] 建立 CopyButton 元件測試於 `tests/components/operations/CopyButton.test.tsx`
 
 ### Implementation for User Story 4
 
-#### Rust 後端實作
+#### Rust 後端
 
-- [ ] T101 [US4] 實作 `copy_files` Tauri command 於 `src-tauri/src/commands/file_ops.rs`：std::fs::copy, 處理同名衝突
+- [ ] T091 [US4] 實作 copy_files Tauri 命令於 `src-tauri/src/commands/file_ops.rs`
 
-#### React 前端實作
+#### 前端元件
 
-- [ ] T102 [P] [US4] 建立 CopyButton 元件於 `src/components/operations/CopyButton.tsx`：複製按鈕 + 目標資料夾選擇
-- [ ] T103 [US4] 建立 ConflictDialog 元件於 `src/components/operations/ConflictDialog.tsx`：同名檔案處理選項（覆蓋/跳過/重新命名）
-- [ ] T104 [US4] 更新 useFileOperations Hook 加入 copySelected 邏輯
-- [ ] T105 [US4] 整合複製功能於 `src/App.tsx`：CopyButton + ConflictDialog + Toast 通知
+- [ ] T092 [US4] 建立 CopyButton 元件於 `src/components/operations/CopyButton.tsx`
+- [ ] T093 [US4] 更新 useFileOperations Hook 支援複製於 `src/hooks/useFileOperations.ts`
+- [ ] T094 [US4] 整合複製按鈕至 MainLayout 於 `src/components/layout/MainLayout.tsx`
 
 ### Validation for User Story 4
 
-- [ ] T106 [US4] 驗證 Rust 測試覆蓋率 ≥ 80%：執行 `cargo tarpaulin` (Constitution II)
-- [ ] T107 [US4] 驗證前端測試覆蓋率 ≥ 80%：執行 `pnpm test:coverage` (Constitution II)
-- [ ] T108 [US4] 驗證來源與目標同資料夾時顯示錯誤
+- [ ] T095 [US4] 驗證 Rust 測試通過
+- [ ] T096 [US4] 驗證前端測試覆蓋率 ≥ 80%
+- [ ] T097 [US4] 驗證複製時同名檔案處理邏輯正確
 
 **Checkpoint**: User Story 4 完成 - 使用者可選擇並複製檔案
 
@@ -248,16 +264,16 @@
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-**Purpose**: 跨 User Story 的改進與最終打磨
+**Purpose**: 跨 User Story 的改進與收尾
 
-- [ ] T109 [P] 設定 GitHub Actions 多平台建構：`.github/workflows/release.yml` (Windows, macOS Intel, macOS ARM)
-- [ ] T110 [P] 更新 README.md 文件：功能說明、截圖、安裝指南
-- [ ] T111 [P] 建立 CHANGELOG.md 追蹤版本變更
-- [ ] T112 [P] 執行無障礙存取檢查：確保 WCAG 2.1 AA 合規 (Constitution III)
-- [ ] T113 執行 quickstart.md 驗證：依步驟建構並測試應用程式
-- [ ] T114 執行完整效能測試：掃描 10,000 檔案應 < 60 秒 (Constitution IV)
-- [ ] T115 程式碼最終審查：確認 SOLID 原則 (Constitution I)
-- [ ] T116 安全性檢查：確認檔案操作權限與錯誤處理
+- [ ] T098 [P] 建立 GitHub Actions 多平台建構工作流程於 `.github/workflows/release.yml`
+- [ ] T099 [P] 更新 README.md 加入使用說明與安裝指南
+- [ ] T100 [P] 建立應用程式圖示於 `src-tauri/icons/`
+- [ ] T101 設定 Tauri 應用程式 metadata 於 `src-tauri/tauri.conf.json`
+- [ ] T102 執行完整效能測試（10,000 檔案掃描、UI 回應時間）
+- [ ] T103 執行無障礙功能檢查 (shadcn/ui ARIA 支援)
+- [ ] T104 驗證 quickstart.md 所有步驟可正常執行
+- [ ] T105 最終程式碼審查與清理
 
 ---
 
@@ -265,94 +281,54 @@
 
 ### Phase Dependencies
 
-- **Phase 1 (Setup)**: 無相依性 - 可立即開始
-- **Phase 2 (Foundational)**: 相依於 Phase 1 完成 - **阻擋所有 User Stories**
-- **Phase 3-6 (User Stories)**: 皆相依於 Phase 2 完成
-  - User Story 1 (P1): 可在 Phase 2 完成後開始
-  - User Story 2 (P2): 可與 US1 平行，但顯示需要 US1 的掃描結果
-  - User Story 3 (P3): 相依於 US1 的檔案清單顯示
-  - User Story 4 (P4): 相依於 US3 的檔案選擇機制
-- **Phase 7 (Polish)**: 相依於所有 User Stories 完成
+- **Setup (Phase 1)**: 無相依性 - 可立即開始
+- **Foundational (Phase 2)**: 相依於 Setup 完成 - **阻塞所有 User Story**
+- **User Stories (Phase 3-6)**: 全部相依於 Foundational 階段完成
+  - 各 User Story 可平行進行（若有多人）
+  - 或依優先順序執行（P1 → P2 → P3 → P4）
+- **Polish (Phase 7)**: 相依於所有預期 User Story 完成
 
 ### User Story Dependencies
 
-```
-Phase 2 (Foundational)
-       │
-       ▼
-    ┌──────────────────┐
-    │  User Story 1    │ ← MVP 可交付點
-    │  (掃描 + 顯示)   │
-    └────────┬─────────┘
-             │
-    ┌────────┴─────────┐
-    │                  │
-    ▼                  ▼
-┌──────────────┐  ┌──────────────┐
-│ User Story 2 │  │ User Story 3 │
-│ (篩選+搜尋)  │  │ (選擇+刪除)  │
-└──────────────┘  └──────┬───────┘
-                         │
-                         ▼
-                  ┌──────────────┐
-                  │ User Story 4 │
-                  │ (複製檔案)   │
-                  └──────────────┘
-```
+- **User Story 1 (P1)**: Foundational 完成後即可開始 - 無其他 Story 相依性
+- **User Story 2 (P2)**: Foundational 完成後即可開始 - 與 US1 整合但可獨立測試
+- **User Story 3 (P3)**: Foundational 完成後即可開始 - 需要 US1 的檔案清單但選擇功能獨立
+- **User Story 4 (P4)**: Foundational 完成後即可開始 - 與 US3 共用選擇機制
 
 ### Within Each User Story
 
-- 測試必須先撰寫並確保失敗 (TDD)
-- Models → Services/Hooks → UI Components
-- 核心實作 → 整合 → 驗證
+- 測試必須先撰寫並確認失敗（Red-Green-Refactor）
+- Rust 後端先於前端整合
+- 狀態管理先於 UI 元件
+- 元件完成後再整合至 MainLayout
 
 ### Parallel Opportunities
 
-**Phase 1 (Setup)**:
-- T003-T012 皆可平行執行
+**Phase 1 內平行任務**: T003, T004, T005, T007, T008, T009, T010, T011, T012
 
-**Phase 2 (Foundational)**:
-- T014-T020 (Rust models) 可全部平行
-- T024-T028 (Frontend types/lib) 可全部平行
-- T030 完成後，T029 可獨立進行
+**Phase 2 內平行任務**: T014-T017, T025-T026, T029-T035
 
-**User Story 1**:
-- T033-T041 (所有測試) 可全部平行
-- T048-T054 (前端元件) 大部分可平行
+**User Story 內平行測試**: 各 Story 的測試任務均可平行執行
 
-**User Story 2**:
-- T061-T066 (所有測試) 可全部平行
-- T067-T072 (前端元件) 大部分可平行
-
-**User Story 3**:
-- T078-T084 (所有測試) 可全部平行
-- T086, T089-T091 (前端元件) 可平行
-
-**User Story 4**:
-- T098-T100 (所有測試) 可全部平行
+**User Story 間平行**: US1 完成後，US2/US3/US4 可由不同開發者同時進行
 
 ---
 
 ## Parallel Example: User Story 1
 
 ```bash
-# 同時啟動所有 User Story 1 測試:
-Task: T033 [P] [US1] Rust 單元測試 classify_extension()
-Task: T034 [P] [US1] Rust 單元測試 FileEntry::from_path()
-Task: T035 [P] [US1] Rust 單元測試 scan_directory()
-Task: T036 [P] [US1] Rust 整合測試 scan_folder command
-Task: T037 [P] [US1] 前端測試 FolderSelector
-Task: T038 [P] [US1] 前端測試 ProgressBar
-Task: T039 [P] [US1] 前端測試 FileTable
-Task: T040 [P] [US1] 前端測試 useScanner
-Task: T041 [P] [US1] 前端測試 scanStore
+# 同時啟動所有 US1 測試任務：
+T036: Rust walker 測試
+T037: Rust file_info 測試
+T038: useScanner Hook 測試
+T039: scanStore 測試
+T040: FolderSelector 元件測試
+T041: ProgressBar 元件測試
 
-# 同時啟動 User Story 1 前端元件:
-Task: T050 [P] [US1] FolderSelector 元件
-Task: T051 [P] [US1] ScanButton 元件
-Task: T052 [P] [US1] ProgressBar 元件
-Task: T053 [P] [US1] FileTable 元件
-Task: T054 [P] [US1] FileItem 元件
+# 測試就緒後，同時啟動平行元件任務：
+T046: FolderSelector 元件
+T047: ScanButton 元件
+T048: ProgressBar 元件
 ```
 
 ---
@@ -362,28 +338,72 @@ Task: T054 [P] [US1] FileItem 元件
 ### MVP First (僅 User Story 1)
 
 1. 完成 Phase 1: Setup
-2. 完成 Phase 2: Foundational (關鍵 - 阻擋所有 stories)
+2. 完成 Phase 2: Foundational (重要 - 阻塞所有 Story)
 3. 完成 Phase 3: User Story 1
 4. **停止並驗證**: 獨立測試 User Story 1
-5. 可部署/展示 (MVP!)
+5. 若準備就緒可部署/展示 MVP
 
 ### Incremental Delivery
 
-1. Setup + Foundational → 基礎架構完成
-2. User Story 1 → 獨立測試 → 部署/展示 (MVP!)
-3. User Story 2 → 獨立測試 → 部署/展示
-4. User Story 3 → 獨立測試 → 部署/展示
-5. User Story 4 → 獨立測試 → 部署/展示
-6. 每個 Story 都增加價值且不破壞之前的功能
+1. Setup + Foundational → 基礎建設完成
+2. 新增 User Story 1 → 獨立測試 → 部署/展示 (MVP!)
+3. 新增 User Story 2 → 獨立測試 → 部署/展示
+4. 新增 User Story 3 → 獨立測試 → 部署/展示
+5. 新增 User Story 4 → 獨立測試 → 部署/展示
+6. 每個 Story 增加價值而不破壞先前功能
+
+### Parallel Team Strategy
+
+若有多位開發者：
+
+1. 團隊一起完成 Setup + Foundational
+2. Foundational 完成後：
+   - 開發者 A: User Story 1 (Rust 後端)
+   - 開發者 B: User Story 1 (React 前端)
+3. US1 完成後可分配 US2/US3/US4
+
+---
+
+## Summary
+
+| 統計項目 | 數量 |
+|---------|------|
+| 總任務數 | 105 |
+| Phase 1: Setup | 12 |
+| Phase 2: Foundational | 23 |
+| Phase 3: User Story 1 | 19 |
+| Phase 4: User Story 2 | 14 |
+| Phase 5: User Story 3 | 20 |
+| Phase 6: User Story 4 | 9 |
+| Phase 7: Polish | 8 |
+| 可平行任務數 | 62 |
+
+### MVP Scope
+
+**建議 MVP 範圍**: 僅實作 User Story 1（Phase 1-3，共 54 個任務）
+
+MVP 交付價值：
+- 選擇資料夾並掃描
+- 顯示進度條
+- 以表格顯示所有檔案資訊（路徑、大小、修改時間、資料夾總大小）
+
+### Independent Test Criteria
+
+| User Story | 獨立測試方式 |
+|------------|-------------|
+| US1 | 選擇資料夾 → 掃描 → 顯示檔案清單 |
+| US2 | 切換顯示模式 → 篩選類型 → 輸入搜尋 |
+| US3 | 勾選檔案 → 刪除 → 確認結果 |
+| US4 | 勾選檔案 → 複製 → 選擇目標 → 確認結果 |
 
 ---
 
 ## Notes
 
-- [P] 任務 = 不同檔案、無相依性
-- [Story] 標籤將任務對應到特定 User Story 以便追蹤
-- 每個 User Story 應可獨立完成並測試
-- 先驗證測試失敗再開始實作
-- 每個任務或邏輯群組完成後 commit
-- 可在任何 checkpoint 停止以獨立驗證 Story
-- 避免：模糊任務、相同檔案衝突、破壞獨立性的跨 Story 相依
+- [P] 任務 = 不同檔案、無相依性，可平行執行
+- [Story] 標籤將任務對應至特定 User Story 以便追蹤
+- 每個 User Story 應可獨立完成與測試
+- 實作前確認測試失敗（Red-Green-Refactor）
+- 每個任務或邏輯群組完成後提交
+- 可在任何 Checkpoint 停止並獨立驗證該 Story
+- 避免：模糊任務、同檔案衝突、破壞獨立性的跨 Story 相依
