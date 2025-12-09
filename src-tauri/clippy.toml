@@ -1,0 +1,16 @@
+# Clippy configuration for HansFileScanner
+# See: https://rust-lang.github.io/rust-clippy/master/index.html
+
+# Deny these lints (treat as errors)
+warn = [
+    "clippy::all",
+    "clippy::pedantic",
+]
+
+# Allow these lints (suppress warnings)
+allow = [
+    "clippy::module_name_repetitions",
+    "clippy::missing_errors_doc",
+    "clippy::missing_panics_doc",
+    "clippy::must_use_candidate",
+]
