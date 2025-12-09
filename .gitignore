@@ -1,60 +1,44 @@
-# ===========================
-# Dependencies
-# ===========================
-node_modules/
-.pnpm-store/
-
-# ===========================
-# Build outputs
-# ===========================
-dist/
-dist-ssr/
-*.local
-
-# ===========================
-# Test coverage
-# ===========================
-coverage/
-
-# ===========================
-# Tauri / Rust
-# ===========================
-src-tauri/target/
-
-# ===========================
 # Logs
-# ===========================
-logs/
+logs
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# ===========================
-# Editor / IDE
-# ===========================
-.idea/
-*.swp
-*.swo
-*~
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+dist-ssr
+*.local
+coverage
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 Thumbs.db
 
-# ===========================
-# Environment variables
-# ===========================
+# Environment files
 .env
 .env.local
 .env.*.local
 
-# ===========================
 # OS generated files
-# ===========================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+*.tmp
+*.swp
+*~
