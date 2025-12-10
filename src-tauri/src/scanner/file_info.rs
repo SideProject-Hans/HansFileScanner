@@ -14,8 +14,8 @@ pub fn classify_extension(extension: &str) -> FileCategory {
         | "raw" | "heic" | "heif" => FileCategory::Image,
 
         // Videos
-        "mp4" | "avi" | "mkv" | "mov" | "wmv" | "flv" | "webm" | "m4v" | "mpeg" | "mpg"
-        | "3gp" | "ts" => FileCategory::Video,
+        "mp4" | "avi" | "mkv" | "mov" | "wmv" | "flv" | "webm" | "m4v" | "mpeg" | "mpg" | "3gp"
+        | "ts" => FileCategory::Video,
 
         // Audio
         "mp3" | "wav" | "flac" | "aac" | "ogg" | "m4a" | "wma" | "aiff" | "alac" | "opus" => {

@@ -41,10 +41,7 @@ impl ScanOptions {
 }
 
 /// Scan a directory and return all file entries
-pub fn scan_directory(
-    root_path: &str,
-    options: &ScanOptions,
-) -> Result<ScanResult, String> {
+pub fn scan_directory(root_path: &str, options: &ScanOptions) -> Result<ScanResult, String> {
     scan_directory_with_progress(root_path, options, None)
 }
 
@@ -131,7 +128,9 @@ pub fn scan_directory_with_progress(
                     .map(|p| p.to_string_lossy().to_string())
                     .unwrap_or_else(|| "unknown".to_string());
 
-                let reason = if e.io_error().map(|io| io.kind()) == Some(std::io::ErrorKind::PermissionDenied) {
+                let reason = if e.io_error().map(|io| io.kind())
+                    == Some(std::io::ErrorKind::PermissionDenied)
+                {
                     FailureReason::PermissionDenied
                 } else {
                     FailureReason::Unknown
@@ -156,10 +155,7 @@ pub fn scan_directory_with_progress(
 }
 
 /// Create a FileEntry from a walkdir DirEntry
-fn create_file_entry(
-    dir_entry: walkdir::DirEntry,
-    root_path: &str,
-) -> Result<FileEntry, String> {
+fn create_file_entry(dir_entry: walkdir::DirEntry, root_path: &str) -> Result<FileEntry, String> {
     let path = dir_entry.path();
     let metadata = dir_entry
         .metadata()

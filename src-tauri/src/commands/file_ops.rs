@@ -60,13 +60,13 @@ pub struct FileOperationResult {
 #[tauri::command]
 pub async fn delete_files(paths: Vec<String>) -> Result<FileOperationResult, String> {
     let start_time = Instant::now();
-    
+
     let mut success_count: u32 = 0;
     let mut failed_files: Vec<FailedEntry> = Vec::new();
-    
+
     for path_str in &paths {
         let path = Path::new(path_str);
-        
+
         // Check if path exists
         if !path.exists() {
             failed_files.push(FailedEntry {
@@ -76,7 +76,7 @@ pub async fn delete_files(paths: Vec<String>) -> Result<FileOperationResult, Str
             });
             continue;
         }
-        
+
         // Attempt to move to trash
         match trash::delete(path) {
             Ok(()) => {
@@ -92,10 +92,10 @@ pub async fn delete_files(paths: Vec<String>) -> Result<FileOperationResult, Str
             }
         }
     }
-    
+
     let duration_ms = start_time.elapsed().as_millis() as u64;
     let failed_count = failed_files.len() as u32;
-    
+
     Ok(FileOperationResult {
         operation: OperationType::Delete,
         success_count,
@@ -120,9 +120,9 @@ pub async fn copy_files(
     target_folder: String,
 ) -> Result<FileOperationResult, String> {
     let start_time = Instant::now();
-    
+
     let target_path = Path::new(&target_folder);
-    
+
     // Validate target folder exists and is a directory
     if !target_path.exists() {
         return Err(format!("Target folder not found: {}", target_folder));
@@ -130,13 +130,13 @@ pub async fn copy_files(
     if !target_path.is_dir() {
         return Err(format!("Target path is not a directory: {}", target_folder));
     }
-    
+
     let mut success_count: u32 = 0;
     let mut failed_files: Vec<FailedEntry> = Vec::new();
-    
+
     for source_path_str in &source_paths {
         let source_path = Path::new(source_path_str);
-        
+
         // Check if source exists
         if !source_path.exists() {
             failed_files.push(FailedEntry {
@@ -146,7 +146,7 @@ pub async fn copy_files(
             });
             continue;
         }
-        
+
         // Get file name for target path
         let file_name = match source_path.file_name() {
             Some(name) => name,
@@ -159,9 +159,9 @@ pub async fn copy_files(
                 continue;
             }
         };
-        
+
         let dest_path = target_path.join(file_name);
-        
+
         // Check if source and destination are the same folder
         if let Some(source_parent) = source_path.parent() {
             if source_parent == target_path {
@@ -173,7 +173,7 @@ pub async fn copy_files(
                 continue;
             }
         }
-        
+
         // Check if destination already exists
         if dest_path.exists() {
             failed_files.push(FailedEntry {
@@ -183,7 +183,7 @@ pub async fn copy_files(
             });
             continue;
         }
-        
+
         // Perform the copy
         match std::fs::copy(source_path, &dest_path) {
             Ok(_) => {
@@ -199,10 +199,10 @@ pub async fn copy_files(
             }
         }
     }
-    
+
     let duration_ms = start_time.elapsed().as_millis() as u64;
     let failed_count = failed_files.len() as u32;
-    
+
     Ok(FileOperationResult {
         operation: OperationType::Copy,
         success_count,
@@ -215,7 +215,7 @@ pub async fn copy_files(
 /// Categorize trash crate errors into FailureReason
 fn categorize_trash_error(error: &trash::Error) -> (FailureReason, String) {
     let message = error.to_string();
-    
+
     match error {
         trash::Error::Unknown { .. } => {
             if message.contains("permission") || message.contains("denied") {
@@ -233,17 +233,11 @@ fn categorize_trash_error(error: &trash::Error) -> (FailureReason, String) {
 /// Categorize std::io::Error into FailureReason
 fn categorize_io_error(error: &std::io::Error) -> (FailureReason, String) {
     let message = error.to_string();
-    
+
     match error.kind() {
-        std::io::ErrorKind::PermissionDenied => {
-            (FailureReason::PermissionDenied, message)
-        }
-        std::io::ErrorKind::NotFound => {
-            (FailureReason::PathNotFound, message)
-        }
-        std::io::ErrorKind::AlreadyExists => {
-            (FailureReason::FileExists, message)
-        }
+        std::io::ErrorKind::PermissionDenied => (FailureReason::PermissionDenied, message),
+        std::io::ErrorKind::NotFound => (FailureReason::PathNotFound, message),
+        std::io::ErrorKind::AlreadyExists => (FailureReason::FileExists, message),
         _ => {
             if message.contains("locked") || message.contains("in use") {
                 (FailureReason::FileLocked, message)
@@ -263,7 +257,7 @@ mod tests {
     #[tokio::test]
     async fn test_delete_files_nonexistent_path() {
         let result = delete_files(vec!["/nonexistent/path/file.txt".to_string()]).await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 0);
@@ -274,7 +268,7 @@ mod tests {
     #[tokio::test]
     async fn test_delete_files_empty_paths() {
         let result = delete_files(vec![]).await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 0);
@@ -287,17 +281,17 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let file_path = temp_dir.path().join("test_delete.txt");
         File::create(&file_path).unwrap();
-        
+
         assert!(file_path.exists());
-        
+
         let result = delete_files(vec![file_path.to_string_lossy().to_string()]).await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 1);
         assert_eq!(result.failed_count, 0);
         assert_eq!(result.operation, OperationType::Delete);
-        
+
         // File should be moved to trash (no longer exists at original location)
         assert!(!file_path.exists());
     }
@@ -309,20 +303,20 @@ mod tests {
             "/nonexistent/target".to_string(),
         )
         .await;
-        
+
         assert!(result.is_err());
     }
 
     #[tokio::test]
     async fn test_copy_files_nonexistent_source() {
         let temp_dir = TempDir::new().unwrap();
-        
+
         let result = copy_files(
             vec!["/nonexistent/source.txt".to_string()],
             temp_dir.path().to_string_lossy().to_string(),
         )
         .await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 0);
@@ -336,26 +330,29 @@ mod tests {
         let source_dir = TempDir::new().unwrap();
         let source_file = source_dir.path().join("source.txt");
         std::fs::write(&source_file, "test content").unwrap();
-        
+
         // Create target directory
         let target_dir = TempDir::new().unwrap();
-        
+
         let result = copy_files(
             vec![source_file.to_string_lossy().to_string()],
             target_dir.path().to_string_lossy().to_string(),
         )
         .await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 1);
         assert_eq!(result.failed_count, 0);
         assert_eq!(result.operation, OperationType::Copy);
-        
+
         // Verify file was copied
         let copied_file = target_dir.path().join("source.txt");
         assert!(copied_file.exists());
-        assert_eq!(std::fs::read_to_string(copied_file).unwrap(), "test content");
+        assert_eq!(
+            std::fs::read_to_string(copied_file).unwrap(),
+            "test content"
+        );
     }
 
     #[tokio::test]
@@ -363,13 +360,13 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let source_file = temp_dir.path().join("test.txt");
         std::fs::write(&source_file, "content").unwrap();
-        
+
         let result = copy_files(
             vec![source_file.to_string_lossy().to_string()],
             temp_dir.path().to_string_lossy().to_string(),
         )
         .await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 0);
@@ -383,18 +380,18 @@ mod tests {
         let source_dir = TempDir::new().unwrap();
         let source_file = source_dir.path().join("test.txt");
         std::fs::write(&source_file, "source content").unwrap();
-        
+
         // Create target with existing file
         let target_dir = TempDir::new().unwrap();
         let existing_file = target_dir.path().join("test.txt");
         std::fs::write(&existing_file, "existing content").unwrap();
-        
+
         let result = copy_files(
             vec![source_file.to_string_lossy().to_string()],
             target_dir.path().to_string_lossy().to_string(),
         )
         .await;
-        
+
         assert!(result.is_ok());
         let result = result.unwrap();
         assert_eq!(result.success_count, 0);

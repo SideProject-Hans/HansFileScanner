@@ -14,10 +14,7 @@ use crate::scanner::{scan_directory_with_progress, ScanOptions};
 /// Progress events are emitted through the `scan_progress` event channel
 /// at regular intervals (at least 10 times per second) during scanning.
 #[tauri::command]
-pub async fn scan_folder(
-    app_handle: AppHandle,
-    path: String,
-) -> Result<ScanResult, String> {
+pub async fn scan_folder(app_handle: AppHandle, path: String) -> Result<ScanResult, String> {
     // Validate path
     if path.is_empty() {
         return Err("Path cannot be empty".to_string());
@@ -27,10 +24,7 @@ pub async fn scan_folder(
     let app_handle_clone = Arc::new(app_handle.clone());
 
     // Emit initial progress
-    let _ = app_handle.emit(
-        "scan_progress",
-        ScanProgress::new(0, path.clone()),
-    );
+    let _ = app_handle.emit("scan_progress", ScanProgress::new(0, path.clone()));
 
     // Create progress callback that emits events to the frontend
     let progress_callback = {
@@ -42,11 +36,7 @@ pub async fn scan_folder(
 
     // Perform the scan with progress updates
     let options = ScanOptions::new();
-    let result = scan_directory_with_progress(
-        &path, 
-        &options, 
-        Some(Box::new(progress_callback)),
-    )?;
+    let result = scan_directory_with_progress(&path, &options, Some(Box::new(progress_callback)))?;
 
     // Emit completion progress
     let _ = app_handle.emit(
