@@ -33,3 +33,14 @@ trash = "5"
 [dev-dependencies]
 tempfile = "3"
 
+[lints.clippy]
+# Enable recommended lint groups
+all = "warn"
+pedantic = "warn"
+
+# Allow specific lints that are too strict for this project
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+must_use_candidate = "allow"
+

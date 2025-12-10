@@ -1,16 +1,16 @@
 # Clippy configuration for HansFileScanner
 # See: https://rust-lang.github.io/rust-clippy/master/index.html
+#
+# Note: Lint levels (warn/allow/deny) should be configured in Cargo.toml
+# under [lints.clippy] section, not here.
+#
+# This file is for clippy-specific configuration options only.
 
-# Deny these lints (treat as errors)
-warn = [
-    "clippy::all",
-    "clippy::pedantic",
-]
+# Avoid breaking public API changes
+avoid-breaking-exported-api = true
 
-# Allow these lints (suppress warnings)
-allow = [
-    "clippy::module_name_repetitions",
-    "clippy::missing_errors_doc",
-    "clippy::missing_panics_doc",
-    "clippy::must_use_candidate",
-]
+# Complexity threshold for cognitive complexity lint
+cognitive-complexity-threshold = 25
+
+# Maximum number of lines in a function
+too-many-lines-threshold = 100
